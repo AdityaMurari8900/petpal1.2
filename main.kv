@@ -1,0 +1,415 @@
+#:kivy 2.2.1
+
+<PetCard@BoxLayout>:
+    pet_id: ""
+    pet_name: ""
+    pet_icon: ""
+    pet_subtitle: ""
+    progress_text: ""
+    size_hint_y: None
+    height: dp(84)
+    padding: dp(12)
+    spacing: dp(12)
+    canvas.before:
+        Color:
+            rgba: 0.14, 0.16, 0.20, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [14]
+    Label:
+        text: root.pet_icon
+        font_size: "30sp"
+        size_hint_x: None
+        width: dp(48)
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: root.pet_name
+            font_size: "18sp"
+            bold: True
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        Label:
+            text: root.pet_subtitle
+            font_size: "13sp"
+            color: 0.75, 0.75, 0.78, 1
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+        Label:
+            text: root.progress_text
+            font_size: "12sp"
+            color: 0.45, 0.85, 0.55, 1
+            halign: "left"
+            valign: "middle"
+            text_size: self.size
+    Button:
+        text: "Open"
+        size_hint_x: None
+        width: dp(70)
+        background_normal: ""
+        background_color: 0.30, 0.55, 0.95, 1
+        on_release: app.root.get_screen("pet_list").open_pet(root.pet_id)
+    Button:
+        text: "X"
+        size_hint_x: None
+        width: dp(40)
+        background_normal: ""
+        background_color: 0.75, 0.25, 0.25, 1
+        on_release: app.root.get_screen("pet_list").confirm_delete(root.pet_id, root.pet_name)
+
+
+<ChecklistRow@BoxLayout>:
+    task_key: ""
+    task_label: ""
+    is_done: False
+    size_hint_y: None
+    height: dp(56)
+    padding: dp(10)
+    spacing: dp(10)
+    canvas.before:
+        Color:
+            rgba: (0.16, 0.30, 0.20, 1) if root.is_done else (0.16, 0.16, 0.18, 1)
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [10]
+    CheckBox:
+        size_hint_x: None
+        width: dp(40)
+        active: root.is_done
+        on_active: app.root.get_screen("checklist").toggle(root.task_key)
+    Label:
+        text: root.task_label
+        font_size: "16sp"
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        color: (0.6, 1, 0.7, 1) if root.is_done else (1, 1, 1, 1)
+
+
+<GroomingRow@BoxLayout>:
+    task_label: ""
+    frequency_text: ""
+    size_hint_y: None
+    height: dp(34)
+    Label:
+        text: root.task_label
+        font_size: "13sp"
+        halign: "left"
+        valign: "middle"
+        text_size: self.size
+        color: 0.8, 0.8, 0.82, 1
+    Label:
+        text: root.frequency_text
+        font_size: "12sp"
+        size_hint_x: 0.45
+        halign: "right"
+        valign: "middle"
+        text_size: self.size
+        color: 0.55, 0.75, 0.95, 1
+
+
+<SpeciesButton@ToggleButton>:
+    selected: False
+    group: "species"
+    background_normal: ""
+    background_color: (0.30, 0.55, 0.95, 1) if self.selected else (0.22, 0.22, 0.25, 1)
+    font_size: "15sp"
+
+
+RootManager:
+    id: root_manager
+    PetListScreen:
+        name: "pet_list"
+    AddPetScreen:
+        name: "add_pet"
+    ChecklistScreen:
+        name: "checklist"
+
+
+<PetListScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.09, 0.10, 0.12, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(12)
+
+        Label:
+            text: "PetPal Assistant"
+            font_size: "24sp"
+            bold: True
+            size_hint_y: None
+            height: dp(40)
+        Label:
+            text: "Your pets"
+            font_size: "14sp"
+            color: 0.7, 0.7, 0.75, 1
+            size_hint_y: None
+            height: dp(20)
+            halign: "left"
+            text_size: self.size
+
+        BoxLayout:
+            id: empty_state
+            size_hint_y: None
+            height: 0
+            opacity: 0
+            Label:
+                text: "No pets yet. Tap 'Add a pet' to create your first profile\n(dog, cat, or bird)."
+                halign: "center"
+                color: 0.6, 0.6, 0.65, 1
+
+        ScrollView:
+            BoxLayout:
+                id: pet_list_box
+                orientation: "vertical"
+                spacing: dp(10)
+                size_hint_y: None
+                height: self.minimum_height
+
+        Button:
+            text: "+ Add a pet"
+            size_hint_y: None
+            height: dp(52)
+            background_normal: ""
+            background_color: 0.30, 0.55, 0.95, 1
+            font_size: "16sp"
+            on_release:
+                app.root.transition.direction = "left"
+                app.root.current = "add_pet"
+
+
+<AddPetScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.09, 0.10, 0.12, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    ScrollView:
+        BoxLayout:
+            orientation: "vertical"
+            padding: dp(16)
+            spacing: dp(12)
+            size_hint_y: None
+            height: self.minimum_height
+
+            Label:
+                text: "New pet profile"
+                font_size: "22sp"
+                bold: True
+                size_hint_y: None
+                height: dp(36)
+
+            Label:
+                text: "Species"
+                size_hint_y: None
+                height: dp(20)
+                halign: "left"
+                text_size: self.size
+                color: 0.7, 0.7, 0.75, 1
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(48)
+                spacing: dp(8)
+                SpeciesButton:
+                    id: species_btn_dog
+                    text: "\U0001F436 Dog"
+                    selected: True
+                    state: "down"
+                    on_release: root.select_species("Dog")
+                SpeciesButton:
+                    id: species_btn_cat
+                    text: "\U0001F431 Cat"
+                    on_release: root.select_species("Cat")
+                SpeciesButton:
+                    id: species_btn_bird
+                    text: "\U0001F426 Bird"
+                    on_release: root.select_species("Bird")
+
+            Label:
+                text: "Name"
+                size_hint_y: None
+                height: dp(18)
+                halign: "left"
+                text_size: self.size
+                color: 0.7, 0.7, 0.75, 1
+            TextInput:
+                id: name_input
+                multiline: False
+                size_hint_y: None
+                height: dp(44)
+
+            Label:
+                text: "Breed"
+                size_hint_y: None
+                height: dp(18)
+                halign: "left"
+                text_size: self.size
+                color: 0.7, 0.7, 0.75, 1
+            Spinner:
+                id: breed_spinner
+                text: "Select breed"
+                values: root.breed_options
+                size_hint_y: None
+                height: dp(44)
+
+            Label:
+                text: "Sex"
+                size_hint_y: None
+                height: dp(18)
+                halign: "left"
+                text_size: self.size
+                color: 0.7, 0.7, 0.75, 1
+            Spinner:
+                id: sex_spinner
+                text: "Unknown"
+                values: ["Male", "Female", "Unknown"]
+                size_hint_y: None
+                height: dp(44)
+
+            Label:
+                text: "Date of birth / adoption (optional, YYYY-MM-DD)"
+                size_hint_y: None
+                height: dp(18)
+                halign: "left"
+                text_size: self.size
+                color: 0.7, 0.7, 0.75, 1
+            TextInput:
+                id: dob_input
+                multiline: False
+                size_hint_y: None
+                height: dp(44)
+
+            Label:
+                text: "Weight (optional)"
+                size_hint_y: None
+                height: dp(18)
+                halign: "left"
+                text_size: self.size
+                color: 0.7, 0.7, 0.75, 1
+            TextInput:
+                id: weight_input
+                multiline: False
+                size_hint_y: None
+                height: dp(44)
+
+            Label:
+                text: "Notes (optional)"
+                size_hint_y: None
+                height: dp(18)
+                halign: "left"
+                text_size: self.size
+                color: 0.7, 0.7, 0.75, 1
+            TextInput:
+                id: notes_input
+                multiline: True
+                size_hint_y: None
+                height: dp(80)
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(52)
+                spacing: dp(10)
+                padding: [0, dp(8), 0, 0]
+                Button:
+                    text: "Cancel"
+                    background_normal: ""
+                    background_color: 0.3, 0.3, 0.32, 1
+                    on_release: root.cancel()
+                Button:
+                    text: "Save pet"
+                    background_normal: ""
+                    background_color: 0.25, 0.75, 0.45, 1
+                    on_release: root.save_pet()
+
+
+<ChecklistScreen>:
+    canvas.before:
+        Color:
+            rgba: 0.09, 0.10, 0.12, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(10)
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(40)
+            spacing: dp(8)
+            Button:
+                text: "< Back"
+                size_hint_x: None
+                width: dp(80)
+                background_normal: ""
+                background_color: 0.22, 0.22, 0.25, 1
+                on_release: root.go_back()
+            Label:
+                text: root.pet_icon + "  " + root.pet_name
+                font_size: "20sp"
+                bold: True
+                halign: "left"
+                text_size: self.size
+
+        Label:
+            text: root.pet_meta
+            size_hint_y: None
+            height: dp(20)
+            halign: "left"
+            text_size: self.size
+            color: 0.7, 0.7, 0.75, 1
+
+        Label:
+            text: "Today's checklist"
+            size_hint_y: None
+            height: dp(24)
+            font_size: "16sp"
+            bold: True
+            halign: "left"
+            text_size: self.size
+
+        ScrollView:
+            size_hint_y: 0.45
+            BoxLayout:
+                id: checklist_box
+                orientation: "vertical"
+                spacing: dp(8)
+                size_hint_y: None
+                height: self.minimum_height
+
+        Label:
+            text: root.progress_text
+            size_hint_y: None
+            height: dp(24)
+            color: 0.45, 0.85, 0.55, 1
+            bold: True
+
+        Label:
+            text: "Grooming defaults for this species"
+            size_hint_y: None
+            height: dp(24)
+            font_size: "14sp"
+            bold: True
+            halign: "left"
+            text_size: self.size
+            color: 0.7, 0.7, 0.75, 1
+
+        ScrollView:
+            BoxLayout:
+                id: grooming_box
+                orientation: "vertical"
+                spacing: dp(4)
+                size_hint_y: None
+                height: self.minimum_height
